@@ -24,9 +24,9 @@ function downloadFile(uri,filename,callback){
     request(uri).pipe(stream).on('close', callback); 
 }
 
-downloadFile("https://aweme.snssdk.com/aweme/v1/play/?video_id=v0200fg10000caso1l3c77u1j2tkuj9g&line=0&file_id=e3477a08875b4117b695a17d7f4e74b9&sign=c2855c9ccbde5dd3022e4157447af8ff&is_play_url=1&source=PackSourceEnum_DOUYIN_REFLOW","sdcard/download/[7113861641179090184]所有人眼中的差生最终逆袭成为学霸#家庭教育 #教育 #读书 #孩子教育 .mp4", () => {
-    console.log('下载完成');
-})
+// downloadFile("https://aweme.snssdk.com/aweme/v1/play/?video_id=v0200fg10000caso1l3c77u1j2tkuj9g&line=0&file_id=e3477a08875b4117b695a17d7f4e74b9&sign=c2855c9ccbde5dd3022e4157447af8ff&is_play_url=1&source=PackSourceEnum_DOUYIN_REFLOW","sdcard/download/[7113861641179090184]所有人眼中的差生最终逆袭成为学霸#家庭教育 #教育 #读书 #孩子教育 .mp4", () => {
+//     console.log('下载完成');
+// })
 
 class WebActivity extends ui.Activity {
     get initialStatusBar() {

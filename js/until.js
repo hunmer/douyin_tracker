@@ -10,6 +10,7 @@ var g_config = local_readJson('config', {
 
 var g_cache = {
     toast: -1,
+    lastWheel: 0,
     nextPage: 0,
     isWeb:  typeof($autojs) == 'undefined' && typeof(_api) == 'undefined'
 }
@@ -266,6 +267,10 @@ function ipc_send(type, msg) {
     switch(type){
         case 'reload':
             return location.reload();
+
+        case 'copy':
+            if(g_cache.isWeb) return window.open(msg);
+            break;
     }
 
      if (typeof($autojs) != 'undefined') {

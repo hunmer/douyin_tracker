@@ -211,7 +211,7 @@ var g_douyin = {
             let e = exists.includes(id);
             h += `
               <li data-uid="${id}">
-                 <img class="am-circle mx-auto mr-2" title="${d.user.name}" src="${d.user.icon}" width="40" height="40"/>
+                 <img onclick="window.open('https://www.douyin.com/user/${id}', 'target')" class="am-circle mx-auto mr-2" title="${d.user.name}" src="${d.user.icon}" width="40" height="40"/>
                     <b>${d.user.name}</b>
 
                 <div class="float-end">
@@ -268,7 +268,9 @@ var g_douyin = {
             if (!d) return;
             let r = '';
             let i = 0;
-            for (let [vid, item] of Object.entries(d.list)) {
+
+            for(let vid of Object.keys(d.list).sort()){
+                let item = d.list[vid];
                 if (!item.last) {
                     r += `
                     <li data-vid="${vid}" class="video_item" data-index=${i++}>
@@ -282,6 +284,7 @@ var g_douyin = {
                   `
                 }
             }
+
             let target = domSelector({ uid: id }, '.user_recent');
             if (i > 0) {
                 let h = `
@@ -325,6 +328,7 @@ var g_douyin = {
     },
 
     account_checkNew: function(ids) {
+        toast('更新中...', 'primary');
         if (ids === undefined) ids = Object.keys(this.list);
         if (!Array.isArray(ids)) ids = [ids];
         let i = 0;

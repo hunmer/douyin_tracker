@@ -6,14 +6,14 @@ const g_video = {
         const self = this;
 
         registerAction('video_copyLink', () => {
-            ipc_send('copy', 'https://www.douyin.com/video/'+g_cache.preview.vid)
+            ipc_send('copy', 'https://www.douyin.com/video/' + g_cache.preview.vid)
             hideModal();
         });
 
-         registerAction('video_download', () => {
+        registerAction('video_download', () => {
             ipc_send('download', {
                 url: g_cache.preview.video.video,
-                path: 'sdcard/download/'+'['+g_cache.preview.vid+']'+g_cache.preview.video.desc+'.mp4',
+                path: 'sdcard/download/' + '[' + g_cache.preview.vid + ']' + g_cache.preview.video.desc + '.mp4',
             })
             hideModal();
         });
@@ -26,7 +26,7 @@ const g_video = {
             let vid = par.data('vid');
             let uid = dom.parents('[data-uid]').data('uid');
 
-           
+
             for (let item of par.parents().find('.video_item')) {
                 let vid = item.dataset.vid;
                 let d = g_douyin.video_get(uid, vid);
@@ -35,7 +35,7 @@ const g_video = {
                     h += `
                     <li data-vid="${vid}" data-uid="${uid}" class="slider_video_item h-full position-relative">
                         <span>${d.desc}</span>
-                        <video class="w-full h-full" data-src="${d.video || ''}" poster="${d.dynamic_cover}" autoplay loop>
+                        <video onmousewheel="g_video.event_wheel(event)"  class="w-full h-full" data-src="${d.video || ''}" poster="${d.dynamic_cover}" autoplay loop>
                     </li>`;
                 }
 
@@ -50,14 +50,14 @@ const g_video = {
             `);
 
             const startPlay = div => {
-                for(let v of $('video')) v.pause();
+                for (let v of $('video')) v.pause();
 
                 let video = div.find('video')[0];
                 let vid = div.data('vid');
                 let uid = div.data('uid');
 
                 let d = g_douyin.video_get(uid, vid);
-                 g_cache.preview = {
+                g_cache.preview = {
                     vid: vid,
                     video: d
                 }
@@ -103,6 +103,24 @@ const g_video = {
                 title: g_coll.getHTML()
             });
         })
+    },
+
+    event_wheel: function(e) {
+        let now = new Date().getTime();
+         let i;
+         console.log(e);
+        if(now >= g_cache.lastWheel){
+            if (e.wheelDelta) { //判断浏览器IE，谷歌滑轮事件
+                i = e.wheelDelta;
+            } else if (e.detail) { //Firefox滑轮事件
+                i = e.detail
+            } else if(e.detailY){
+                i = e.detailY;
+            }
+            console.log(i);
+            $('#slider_videos').flexslider(i > 0 ? 'prev' : 'next') 
+            g_cache.lastWheel = now + 500;
+        }
     },
 
 
