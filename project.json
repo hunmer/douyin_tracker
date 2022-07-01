@@ -1,0 +1,62 @@
+{
+  "assets": [],
+  "build": {
+    "build_id": "2098CB31-7",
+    "build_number": 7,
+    "build_time": 1644479119038,
+    "release": false
+  },
+  "encryptLevel": 0,
+  "useFeatures": [],
+  "icon": "icons/logo_icon.png",
+  "launchConfig": {
+    "displaySplash": true,
+    "hideLogs": true,
+    "splashIcon": "icons/splash_icon.png",
+    "splashText": "抖音对标账号",
+    "stableMode": true
+  },
+  "main": "main.node.js",
+  "name": "douPlus",
+  "optimization": {
+    "obfuscateComponents": false,
+    "removeAccessibilityService": true,
+    "removeOpenCv": false,
+    "unusedResources": false
+  },
+  "packageName": "com.hunmer.douPlus",
+  "permissionConfig": {
+    "manifestPermissions": [
+      "android.permission.SYSTEM_ALERT_WINDOW",
+      "android.permission.RUN_IN_BACKGROUND",
+      "android.permission.FOREGROUND_SERVICE",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.RECEIVE_BOOT_COMPLETED",
+      "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
+      "android.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND",
+      "android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND",
+      "android.permission.VIBRATE",
+      "android.permission.WAKE_LOCK",
+      "android.permission.REORDER_TASKS",
+      "android.permission.USE_DATA_IN_BACKGROUND",
+      "android.permission.INTERNET",
+      "android.permission.WRITE_EXTERNAL_STORAGE"
+    ],
+    "requestListOnStartup": [
+      "android.permission.SYSTEM_ALERT_WINDOW",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.RECEIVE_BOOT_COMPLETED",
+      "android.permission.USE_DATA_IN_BACKGROUND",
+      "android.permission.RUN_IN_BACKGROUND",
+      "android.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND",
+      "android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND",
+      "android.permission.REORDER_TASKS",
+      "android.permission.INTERNET",
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+      "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+    ]
+  },
+  "scripts": {},
+  "versionCode": 1,
+  "versionName": "1.0"
+}
