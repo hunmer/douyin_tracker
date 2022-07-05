@@ -64,14 +64,18 @@ function doAction(dom, action, event) {
             break;
 
           case 'data_export':
-            var d = {};
-            for (var key of local_getList()) {
-                d[key] = localStorage.getItem(key);
-            }
-            downloadData(JSON.stringify(d), 'data_' + (new Date().format('yyyy_MM_dd_hh_mm_ss')) + '.json');
+            downloadData(JSON.stringify(data_getAll()), 'data_' + (new Date().format('yyyy_MM_dd_hh_mm_ss')) + '.json');
             break;
         case 'data_import':
             $('#upload').click();
             break;
     }
+}
+
+function data_getAll(){
+    var d = {};
+            for (var key of local_getList()) {
+                d[key] = localStorage.getItem(key);
+            }
+    return d;
 }

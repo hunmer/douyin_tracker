@@ -26,6 +26,32 @@ var g_douyin = {
             }
         });
 
+        registerAction(['data_upload', 'data_sync'], (dom, action) => {
+            showModal({
+                type: 'prompt',
+                title: '输入用户名名称',
+                textarea: true,
+            }).then(name => {
+                if (!isEmpty(name)) {
+                    let data = { user: name};
+                    if(action[0] == 'data_upload') data.data = JSON.stringify(data_getAll());
+
+                     $.ajax({
+                        url: g_api + 'upload.php',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: data,
+                    })
+                    .done(function(data) {
+                       if(action[0] == 'data_upload') return toast('上传成功', 'success');
+                       importData(data);
+                    })
+                    .fail(function() {
+                       toast(action[0] == 'data_upload' ? '上传失败' : '同步失败', 'danger');
+                    })
+                }
+            })
+        });
 
         registerAction('user_follow', dom => {
             dom = $(dom);
@@ -52,11 +78,11 @@ var g_douyin = {
                 msg: '一键已读',
             }).then(() => {
                 let now = new Date().getTime();
-                for(let uid in self.list){
+                for (let uid in self.list) {
                     let d = self.list[uid];
-                    for(let id in d.list){
+                    for (let id in d.list) {
                         let item = d.list[id];
-                        if(!item.last) item.last = now;
+                        if (!item.last) item.last = now;
                     }
                 }
                 self.save();
@@ -286,7 +312,7 @@ var g_douyin = {
 
             let r = '';
             let i = 0;
-            for(let vid of Object.keys(d.list).sort()){
+            for (let vid of Object.keys(d.list).sort()) {
                 let item = d.list[vid];
                 if (!item.last) {
                     r += `
