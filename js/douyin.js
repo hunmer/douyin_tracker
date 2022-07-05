@@ -46,6 +46,23 @@ var g_douyin = {
             }
         })
 
+        registerAction('videos_readedAll', dom => {
+            showModal({
+                title: `确定一键已读所有视频吗?`,
+                msg: '一键已读',
+            }).then(() => {
+                let now = new Date().getTime();
+                for(let uid in self.list){
+                    let d = self.list[uid];
+                    for(let id in d.list){
+                        let item = d.list[id];
+                        if(!item.last) item.last = now;
+                    }
+                }
+                self.save();
+                domSelector('videos_readedAll').addClass('hide');
+            });
+        });
 
         registerAction('user_public_remove', dom => {
             showModal({
@@ -266,15 +283,15 @@ var g_douyin = {
         for (let id of ids) {
             let d = this.list[id];
             if (!d) return;
+
             let r = '';
             let i = 0;
-
             for(let vid of Object.keys(d.list).sort()){
                 let item = d.list[vid];
                 if (!item.last) {
                     r += `
                     <li data-vid="${vid}" class="video_item" data-index=${i++}>
-                      <img title="${item.desc}" class="am-thumbnail mx-auto" src="${item.cover}" data-action="video_play"  />
+                      <img title="${item.desc}" class="am-thumbnail mx-auto lazyload" src="${item.cover}" data-action="video_play"  />
                       <div class="d-flex justify-content-around">
                         <a class="like"><i class="am-header-icon am-icon-heart-o mr-2"></i>${numToStr(item.like)}</a>
                         <a class="comment"><i class="am-header-icon am-icon-commenting-o mr-2"></i>${numToStr(item.comment)}</a>
@@ -287,25 +304,30 @@ var g_douyin = {
 
             let target = domSelector({ uid: id }, '.user_recent');
             if (i > 0) {
-                let h = `
+                let h = $(`
                  <div class="user_recent am-u-sm-12 " data-uid="${id}">
                      <img class="am-circle mx-auto mr-2" title="${d.user.name}" src="${d.user.icon}" width="40" height="40"/>
                     <b>${d.user.name}</b>
                     <span class="am-badge am-badge-danger me-2">${i}</span>
 
-                    <button class="am-btn float-end" data-action="user_menu"><span class="am-icon-caret-down"></span></button>
+                    <div class="float-end">
+                        <small class="mr-2">${time_getRent(d.lastUpdateTime)}</small>
+                        <button class="am-btn" data-action="user_menu"><span class="am-icon-caret-down"></span></button>
+                    </div>
                     <div id="video_list" class="mt-10">
                         <ul class="am-avg-sm-2 am-avg-md-4 am-avg-lg-6 am-thumbnails">
                             ${r}
                         </ul>
                     </div>
                   </div>
-                `;
+                `);
                 if (!target.length) {
                     $('#update_main').append(h);
                 } else {
                     target.replaceWith(h);
                 }
+                domSelector('videos_readedAll').removeClass('hide');
+                h.find('.lazyload').lazyload();
             } else {
                 target.remove();
             }

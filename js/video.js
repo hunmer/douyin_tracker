@@ -19,6 +19,7 @@ const g_video = {
         });
 
         registerAction('video_play', dom => {
+            $('video').remove();
             dom = $(dom)
 
             let h = ``;
@@ -50,13 +51,18 @@ const g_video = {
             `);
 
             const startPlay = div => {
-                for (let v of $('video')) v.pause();
-
                 let video = div.find('video')[0];
+                let url = video.dataset.src;
+
+                if(g_cache.preview && url == g_cache.preview.video.video){
+                    console.log('重复url');
+                    return;
+                }
+
                 let vid = div.data('vid');
                 let uid = div.data('uid');
-
                 let d = g_douyin.video_get(uid, vid);
+
                 g_cache.preview = {
                     vid: vid,
                     video: d
@@ -66,8 +72,9 @@ const g_video = {
                 g_douyin.save(true, false);
 
                 domSelector('coll_list').html(g_coll.get_folder(vid));
+                for (let v of $('video')) v.pause();
 
-                video.src = video.dataset.src;
+                video.src = url;
                 video.play();
                 video.onloadedmetadata = function(e) {
                     this.controls = true;
@@ -117,7 +124,6 @@ const g_video = {
             } else if(e.detailY){
                 i = e.detailY;
             }
-            console.log(i);
             $('#slider_videos').flexslider(i > 0 ? 'prev' : 'next') 
             g_cache.lastWheel = now + 500;
         }

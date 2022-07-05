@@ -93,20 +93,20 @@ var g_coll = {
         })
 
         this.list = local_readJson('coll', {
-            id1: {
-                folder: '育儿',
-                cover: 'res/1.png',
-                video: 'res/1.mp4',
-                desc: 'test',
-                like: 300,
-            },
-            id2: {
-                folder: '育儿',
-                cover: 'res/2.png',
-                video: 'res/2.mp4',
-                desc: 'test',
-                like: 300,
-            }
+            // id1: {
+            //     folder: '育儿',
+            //     cover: 'res/1.png',
+            //     video: 'res/1.mp4',
+            //     desc: 'test',
+            //     like: 300,
+            // },
+            // id2: {
+            //     folder: '育儿',
+            //     cover: 'res/2.png',
+            //     video: 'res/2.mp4',
+            //     desc: 'test',
+            //     like: 300,
+            // }
         });
 
 
@@ -142,7 +142,9 @@ var g_coll = {
         });
 
         $('[data-tab-panel-coll]').html(`
-			${this.getHTML('coll_list,select')}
+            <div class="text-center w-full">
+			 ${this.getHTML('coll_list,select')}
+            </div>
 			<hr data-am-widget="divider"class="am-divider am-divider-default" />
 			  <div class="am-g" id="coll_main"></div>
 
@@ -160,8 +162,9 @@ var g_coll = {
             vid: vid,
             video: d
         }
+        //  onclick="if(this.paused){this.play()}else{this.pause()}" 
         $('#detail_content').html(`
-            	<video style="height: calc(100vh - 100px);" onclick="if(this.paused){this.play()}else{this.pause()}" class="w-full" src="${d.video || ''}" poster="${d.cover}" autoplay loop>
+            	<video style="height: calc(100vh - 100px);" class="w-full" src="${d.video || ''}" poster="${d.cover}" autoplay loop controls>
         		</video>
         		<div class="text-center d-block">
 	        		<button data-action="coll_video_prev" type="button" class="am-btn am-btn-primary"><i class="am-header-icon am-icon-arrow-left"></i></button>

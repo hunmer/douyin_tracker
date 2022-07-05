@@ -212,6 +212,10 @@ Date.prototype.format = function(fmt) {
     return fmt;
 }
 
+function _l(s){
+    return s;
+}
+
 function getTime(s, sh = _l(':'), sm = _l(':'), ss = _l(''), hour = false, msFixed = 2) {
     s = Number(s);
     if (s < 0) return '';
@@ -378,5 +382,49 @@ function local_getList() {
 function local_clearAll() {
     for (var key of local_getList()) {
         localStorage.removeItem(key);
+    }
+}
+
+function _s(i, j = '') {
+    return (i < 10 ? '0' + i : i) + j;
+}
+
+function time_getRent(time) {
+    if(!time) return '';
+    var today = new Date();
+    var s = (parseInt(today.getTime()) - time) / 1000;
+    if (s >= 84000) {
+        if (s >= 84000 * 30) {
+            if (s >= 84000 * 365) {
+                return getFormatedTime(4, time);
+            }
+            return getFormatedTime(2, time);
+        }
+        return parseInt(s / 86400) + _l('天前');
+    }
+    // console.log(getTime(s, '时', '分', '秒前'));
+    var s = '';
+    if(today.getDate() != new Date(time).getDate()){
+        s = _l('昨天');
+    }
+    return s+ getFormatedTime(0, time);
+}
+
+function getFormatedTime(i = 0, date = new Date()) {
+    if (typeof(date) != 'object') date = new Date(parseInt(date));
+    switch (i) {
+        case 0:
+            return _s(date.getHours()) + ':' + _s(date.getMinutes());
+        case 1:
+            return date.getMonth() + 1 + '/' + date.getDate() + ' ' + _s(date.getHours()) + ':' + _s(date.getMinutes());
+        case 2:
+            return date.getMonth() + 1 + '/' + date.getDate();
+        case 3:
+            return date.getFullYear() + '_' + (Number(date.getMonth()) + 1) + '_' + date.getDate();
+        case 4:
+            return date.getFullYear() + '/' + (Number(date.getMonth()) + 1) + '/' + date.getDate();
+
+        case 5:
+            return date.getFullYear() + '/' + (Number(date.getMonth()) + 1) + '/' + date.getDate() + ' ' + _s(date.getHours()) + ':' + _s(date.getMinutes());
     }
 }

@@ -101,12 +101,13 @@
         </ul>
         <div class="am-tabs-bd" style="height: calc(100vh - 60px);overflow-y: auto;">
             <div class="ftb">
-                <a data-action="toTop" data-am-smooth-scroll title="回到顶部" class="am-icon-btn am-icon-arrow-up bg-danger" id="amz-go-top"></a>
+                <a data-action="toTop" data-am-smooth-scroll title="回到顶部" class="am-icon-btn am-icon-arrow-up bg-danger hide" id="amz-go-top"></a>
                 <a data-am-modal="{target: '#user_actions'}" data-am-smooth-scroll title="更多选项" class="am-icon-btn am-icon-ellipsis-h"></a>
                 <!-- <a data-action="user_add" title="添加账号" class="am-icon-faq am-icon-btn am-icon-plus-circle"></a> -->
             </div>
             <div data-tab-panel-0 class="am-tab-panel am-active">
                 <div class="am-g" id="update_main"></div>
+                <button type="button" data-action="videos_readedAll" class="am-btn am-btn-primary am-btn-block hide">一键已读</button>
             </div>
             <div data-tab-panel-list class="am-tab-panel ">
                 <div class="am-form-group">
@@ -141,7 +142,7 @@
                 <button type="button" data-action="store_reset" class="am-btn am-btn-danger">删除数据</button>
                 <button type="button" data-action="data_export" class="am-btn am-btn-success">导出数据</button>
                 <button type="button" data-action="data_import" class="am-btn am-btn-warning">导入数据</button>
-                <button type="button" data-action="account_resetViewed" class="am-btn am-btn-secondary">清除已看</button>
+                <button type="button" data-action="account_resetViewed" class="am-btn am-btn-secondary mt-10">清除已看</button>
               </div>
 
 
