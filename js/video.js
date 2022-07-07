@@ -5,8 +5,16 @@ const g_video = {
     init: function() {
         const self = this;
 
-        registerAction('video_copyLink', () => {
-            ipc_send('copy', 'https://www.douyin.com/video/' + g_cache.preview.vid)
+        registerAction(['video_copyLink', 'video_copyHomepage'], (dom, action) => {
+            switch(action[0]){
+                case 'video_copyLink':
+                    ipc_send('copy', 'https://www.douyin.com/video/' + g_cache.preview.vid)
+                    break;
+
+                case 'video_copyHomepage':
+                    ipc_send('copy', 'https://www.douyin.com/user/' + g_cache.preview.uid)
+                    break;
+            }
             hideModal();
         });
 
@@ -54,10 +62,9 @@ const g_video = {
                 let video = div.find('video')[0];
                 let url = video.dataset.src;
 
-                if(g_cache.preview && url == g_cache.preview.video.video){
-                    console.log('重复url');
-                    return;
-                }
+                // if(g_cache.preview && url == g_cache.preview.video.video){
+                //     return;
+                // }
 
                 let vid = div.data('vid');
                 let uid = div.data('uid');
@@ -65,6 +72,7 @@ const g_video = {
 
                 g_cache.preview = {
                     vid: vid,
+                    uid: uid,
                     video: d
                 }
 

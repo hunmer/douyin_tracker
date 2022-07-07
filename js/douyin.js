@@ -335,7 +335,6 @@ var g_douyin = {
                      <img class="am-circle mx-auto mr-2" title="${d.user.name}" src="${d.user.icon}" width="40" height="40"/>
                     <b>${d.user.name}</b>
                     <span class="am-badge am-badge-danger me-2">${i}</span>
-
                     <div class="float-end">
                         <small class="mr-2">${time_getRent(d.lastUpdateTime)}</small>
                         <button class="am-btn" data-action="user_menu"><span class="am-icon-caret-down"></span></button>

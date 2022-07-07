@@ -30,7 +30,8 @@ var g_coll = {
 
         const coll_saveTo = n => {
             self.set(g_cache.preview.vid, Object.assign(g_cache.preview.video, {
-                folder: n
+                folder: n,
+                uid: g_cache.preview.uid
             }))
             toast('保存成功', 'success');
             domSelector('coll_list').html(n);
@@ -160,6 +161,7 @@ var g_coll = {
         let d = this.get(vid);
         g_cache.preview = {
             vid: vid,
+            uid: d.uid,
             video: d
         }
         //  onclick="if(this.paused){this.play()}else{this.pause()}" 

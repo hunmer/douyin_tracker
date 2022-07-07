@@ -26,7 +26,7 @@ function showModal(opts) {
             <div class="am-modal am-modal-confirm" tabindex="-1" id="my-confirm">
                 <div class="am-modal-dialog">
                     <div class="am-modal-hd">${opts.title}</div>
-                    <div class="am-modal-bd">${opts.msg}</div>
+                    <div class="am-modal-bd" style="max-height: calc(100vh - 200px) !important;overflow-y: auto;">${opts.msg}</div>
                     <div class="am-modal-footer">
                         ` + (() => {
             let r = '';
