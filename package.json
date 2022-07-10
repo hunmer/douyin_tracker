@@ -1,16 +1,58 @@
 {
-  "name": "dist",
+  "name": "electron-quick-start",
   "version": "1.0.0",
-  "description": "",
-  "main": "main.node.js",
+  "description": "A minimal Electron application",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "chcp 65001 && electron .",
+    "build": "electron-builder",
+    "build-32": "electron-builder --win --ia32"
   },
-  "author": "",
-  "license": "ISC",
+  "repository": "https://github.com/electron/electron-quick-start",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "GitHub",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^17.0.0",
+    "electron-builder": "^23.1.0"
+  },
   "dependencies": {
     "express": "^4.18.1",
     "request": "^2.88.2"
+  },
+  "build": {
+    "productName": "douyin_tracker",
+    "appId": "com.hunmer.douyinTracker",
+    "copyright": "hunmer",
+    "asar": false,
+    "files": [
+      "!download",
+      "!build",
+      "!test",
+      "!dit/.git"
+    ],
+    "directories": {
+      "output": "build"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "icon.ico"
+    }
   }
 }

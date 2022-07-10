@@ -3,7 +3,7 @@ const { app, ipcRenderer, clipboard, shell } = require('electron');
  var request = require('request');
  var fs = require('fs');
  var path = require('path');
- var files = require('../file.js');
+ var files = require('./file.js');
 
 if (flag) {
     // require('./server.js');+
@@ -65,7 +65,7 @@ function checkFileUpdates(url, tip = true) {
     var skip = getConfig('disabled_updates', 'css/user.css').split('\n');
 
     downloadFile({
-        url: url + 'listFile.json?t='+new Date().getTime(),
+        url: url + 'listFile.json',
         complete: data => {
             try {
                 var i = 0;
