@@ -16,10 +16,9 @@ function createWindow() {
         }
     })
     win.loadFile('index.html')
-    win.webContents.openDevTools()
+    //win.webContents.openDevTools()
     win.webContents.session.on('will-download', (event, item, webContents) => {
-         send('toast', [`下载中...`, 'alert-info']);
-
+        send('toast', [`下载中...`, 'alert-primary']);
         //event.preventDefault();
         let date = new Date();
         var dir = `${__dirname}\\download\\${date.getFullYear()}_${(Number(date.getMonth()) + 1)}_${date.getDate()}\\`;
