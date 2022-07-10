@@ -63,7 +63,6 @@ if (flag) {
 function checkFileUpdates(url, tip = true) {
     if (g_cache.updateing) return;
     var skip = getConfig('disabled_updates', 'css/user.css').split('\n');
-
     downloadFile({
         url: url + 'listFile.json',
         complete: data => {
@@ -75,7 +74,7 @@ function checkFileUpdates(url, tip = true) {
                     let md5 = json[name];
                     name = name.replace(/\\/g, "/");
                     if (skip.includes(name)) continue;
-                    let saveTo =  path.resolve(__dirname, '..') + '/' + name;
+                    let saveTo =  __dirname + '/' + name;
                     if (files.exists(saveTo) && md5 == files.getFileMd5(saveTo)) continue;
                     updated.push(name);
                     i++;
@@ -88,6 +87,7 @@ function checkFileUpdates(url, tip = true) {
                     domSelector('aboutMe').find('.badge').toggleClass('hide', i == 0).html('New');
                 }
             } catch (e) {
+                console.error(e)
                 toast('请求错误', 'danger');
             }
 
@@ -157,7 +157,7 @@ function updateFiles(url, fileList) {
         if (++now >= max) return;
         var name = fileList[now];
         g_cache.updateing = true;
-        let saveTo = path.resolve(__dirname, '..')+'\\' + name;
+        let saveTo =__dirname+'\\' + name;
         downloadFile({
             url: url + name,
             saveTo: saveTo,

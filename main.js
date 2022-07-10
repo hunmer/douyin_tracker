@@ -71,7 +71,7 @@ ipcMain.on("method", async function(event, data) {
             var icon = files.getPath(d.icon);
             win.webContents.startDrag({
                 files: list,
-                icon: __dirname + '/dist/files.ico',
+                icon: __dirname + '/files.ico',
             });
             break;
         case 'devtool':
