@@ -30,25 +30,26 @@ var g_douyin = {
             showModal({
                 type: 'prompt',
                 title: '输入用户名名称',
-                textarea: true,
+                textarea: getConfig('lastUser', ''),
             }).then(name => {
                 if (!isEmpty(name)) {
-                    let data = { user: name};
-                    if(action[0] == 'data_upload') data.data = JSON.stringify(data_getAll());
+                    setConfig('lastUser', name);
+                    let data = { user: name };
+                    if (action[0] == 'data_upload') data.data = JSON.stringify(data_getAll());
 
-                     $.ajax({
-                        url: g_api + 'upload.php',
-                        type: 'POST',
-                        dataType: 'json',
-                        data: data,
-                    })
-                    .done(function(data) {
-                       if(action[0] == 'data_upload') return toast('上传成功', 'success');
-                       importData(data);
-                    })
-                    .fail(function() {
-                       toast(action[0] == 'data_upload' ? '上传失败' : '同步失败', 'danger');
-                    })
+                    $.ajax({
+                            url: g_api + 'upload.php',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: data,
+                        })
+                        .done(function(data) {
+                            if (action[0] == 'data_upload') return toast('上传成功', 'success');
+                            importData(data);
+                        })
+                        .fail(function() {
+                            toast(action[0] == 'data_upload' ? '上传失败' : '同步失败', 'danger');
+                        })
                 }
             })
         });
@@ -215,18 +216,9 @@ var g_douyin = {
                     showModal({
                         type: 'prompt',
                         title: '添加检测账号',
-                        textarea: true,
+                        textarea: getClipboardText(),
                     }).then(url => {
-                        self.douyin_parseUser(url, d => {
-                            self.add(d.sec_uid, {
-                                desc: d.desc,
-                                user: { // 用户信息
-                                    icon: d.icon,
-                                    name: d.name,
-                                }
-                            });
-                            toast('添加成功', 'success');
-                        })
+                        self.link_parse(url);
                     })
                     break;
             }
@@ -245,6 +237,19 @@ var g_douyin = {
             // }
         });
         this.update();
+    },
+
+    link_parse: function(url) {
+        this.douyin_parseUser(url, d => {
+            this.add(d.sec_uid, {
+                desc: d.desc,
+                user: { // 用户信息
+                    icon: d.icon,
+                    name: d.name,
+                }
+            });
+            toast('添加成功', 'success');
+        })
     },
 
     user_list: function(list, public = false) {
@@ -379,6 +384,7 @@ var g_douyin = {
         if (ids === undefined) ids = Object.keys(this.list);
         if (!Array.isArray(ids)) ids = [ids];
         let i = 0;
+
         for (let id of ids) {
             let d = this.get(id);
             if (!d) continue;
@@ -410,7 +416,6 @@ var g_douyin = {
                         vid: item.video.vid,
                         duration: item.video.duration,
                         cover: item.video.cover.url_list[0],
-                        dynamic_cover: item.video.dynamic_cover.url_list[0],
                         video: item.video.play_addr.url_list[2], // 第3,4链接不会过期
                         // video: 'http://127.0.0.1:8002/api/video?id=' + id,
                     }

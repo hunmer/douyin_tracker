@@ -67,6 +67,7 @@ var g_coll = {
                         props: `data-action="coll_new"`
                     }
                     btns[1].text = '保存';
+                    return btns;
                 }
             }).then(() => {
             	name = $('.am-modal-dialog .bg-primary b').html();

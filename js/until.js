@@ -84,9 +84,8 @@ function IsPC() {
 }
 
 function getURL(url){
-    if(g_cache.isWeb) url = 'https://picmanager-room.glitch.me/proxy?url='+ encodeURIComponent(url);
+    if(g_cache.isWeb) url = g_api+'proxy.php?url='+ encodeURIComponent(url);
     return url;
-
 }
 
 function numToStr(n) {

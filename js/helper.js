@@ -9,7 +9,7 @@ function showModal(opts) {
             props: 'data-am-modal-confirm'
         }];
         if (typeof(opts.btns) == 'function') {
-            opts.btns(btns);
+            btns = opts.btns(btns);
             delete opts.btns;
         }
         opts = Object.assign({
@@ -17,9 +17,10 @@ function showModal(opts) {
             msg: '',
             btns: btns,
         }, opts)
+        console.log(opts);
         if (opts.type == 'prompt') {
-            opts.msg += opts.textarea ? `
-                <textarea class="am-modal-prompt-input"></textarea>
+            opts.msg += opts.textarea != '' ? `
+                <textarea class="am-modal-prompt-input">${opts.textarea || ''}</textarea>
             ` : `<input type="text" class="am-modal-prompt-input">`;
         }
         $(`
@@ -31,7 +32,7 @@ function showModal(opts) {
                         ` + (() => {
             let r = '';
             for (let btn of opts.btns) {
-                r += `<span class="am-modal-btn" ${btn.props}>${btn.text}</span>`;
+                r += `<span class="am-modal-btn" ${btn.props || ''}>${btn.text}</span>`;
             }
             return r;
         })() + `

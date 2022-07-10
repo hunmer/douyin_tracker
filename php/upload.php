@@ -1,4 +1,5 @@
 <?php  
+header('Access-Control-Allow-Origin: *');
 if(isset($_POST['user'])){
     $saveTo = './users/'.$_POST['user'].'.json';
     if(isset($_POST['data'])){

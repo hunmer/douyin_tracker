@@ -25,16 +25,34 @@ $(function() {
             if (event.target.classList.contains('am-modal-confirm')) {
                 event.target.remove();
             }
-        });
+        })
+        .on('dragstart', '[data-file]', function(e) {
+            console.log(e);
+            g_cache.draging = true;
+            dragFile(e, $(this).find('img').attr('src') || this.dataset.icon);
+        })
+        .on('dragend', '[data-file]', function(e) {
+            g_cache.draging = false;
+        })
 
 
     getModule('FastClick').attach(document.body);
-    window.addEventListener("popstate", function(event) {
-        window.history.pushState(null, null, "index.html");
-        if (go_back()) {
-            $autojs.invoke('finish');
-        }
-    });
+      $(window).on('popstate', event => {
+            if (g_config.sidebar) {
+                const sidebarToggle = document.body.querySelector('#sidebarToggle');
+                if (sidebarToggle) {
+                    if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
+                        document.body.classList.toggle('sb-sidenav-toggled');
+                    }
+                }
+            }
+        })
+        .on('blur', event => {
+           
+        })
+        .on('focus', event => {
+            checkClipboard();
+        });
 
     $('.am-tabs-bd').on('scroll', function(event) {
         let top = this.scrollTop;

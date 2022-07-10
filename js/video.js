@@ -27,7 +27,11 @@ const g_video = {
         });
 
         registerAction('video_play', dom => {
-            $('video').remove();
+            for(let v of $('video')){
+                v.pause();
+                v.src = '';
+                v.remove();
+            }
             dom = $(dom)
 
             let h = ``;
@@ -44,7 +48,7 @@ const g_video = {
                     h += `
                     <li data-vid="${vid}" data-uid="${uid}" class="slider_video_item h-full position-relative">
                         <span>${d.desc}</span>
-                        <video onmousewheel="g_video.event_wheel(event)"  class="w-full h-full" data-src="${d.video || ''}" poster="${d.dynamic_cover}" autoplay loop>
+                        <video onmousewheel="g_video.event_wheel(event)"  class="w-full h-full" data-src="${d.video || ''}" poster="${d.cover}" autoplay loop>
                     </li>`;
                 }
 
@@ -84,11 +88,15 @@ const g_video = {
 
                 video.src = url;
                 video.play();
+
                 video.onloadedmetadata = function(e) {
                     this.controls = true;
                 }
                 video.oncanplay = function(e) {
                     this.play();
+                }
+                video.onerror = function(e) {
+                    toast('加载视频失败,可能已被删除!', 'danger')
                 }
             }
 
@@ -123,7 +131,6 @@ const g_video = {
     event_wheel: function(e) {
         let now = new Date().getTime();
          let i;
-         console.log(e);
         if(now >= g_cache.lastWheel){
             if (e.wheelDelta) { //判断浏览器IE，谷歌滑轮事件
                 i = e.wheelDelta;
