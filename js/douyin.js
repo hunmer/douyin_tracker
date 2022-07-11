@@ -317,11 +317,12 @@ var g_douyin = {
 
             let r = '';
             let i = 0;
-            for (let vid of Object.keys(d.list).sort()) {
+            for (let vid of Object.keys(d.list).sort((a, b) => b - a)) {
                 let item = d.list[vid];
                 if (!item.last) {
                     r += `
-                    <li data-vid="${vid}" class="video_item" data-index=${i++}>
+                    <li data-vid="${vid}" class="video_item position-relative" data-index=${i++}>
+                      <span class="am-badge am-badge-primary position-absolute" style="top:0;left:5px;">${time_getRent(item.time)}</span>
                       <img title="${item.desc}" class="am-thumbnail mx-auto lazyload" src="${item.cover}" data-action="video_play"  />
                       <div class="d-flex justify-content-around">
                         <a class="like"><i class="am-header-icon am-icon-heart-o mr-2"></i>${numToStr(item.like)}</a>
@@ -384,12 +385,18 @@ var g_douyin = {
         if (ids === undefined) ids = Object.keys(this.list);
         if (!Array.isArray(ids)) ids = [ids];
         let i = 0;
-
+        let done = () => {
+            this.save();
+            $.AMUI.progress.done();
+            clearTimeout(timer);
+        }
+        let timer = setTimeout(() => done(), 1000 * 30);
         for (let id of ids) {
             let d = this.get(id);
             if (!d) continue;
 
             this.douyin_fetchVideos(id, data => {
+                let u = url => url.split('_').at(-1);
                 if (!data.aweme_list.length) return;
                 for (let item of data.aweme_list) {
                     let vid = item.aweme_id;
@@ -408,7 +415,11 @@ var g_douyin = {
                         // 不是最新的且没看过 -> 直接跳过
                         continue;
                     }
+                    let time = [u(item.video.cover.uri), u(item.video.dynamic_cover.uri),u(item.video.origin_cover.uri)].find(t => {
+                        return !isNaN(parseInt(t));
+                    })
                     d.list[vid] = {
+                        time: parseInt(time + '000'),
                         comment: item.statistics.comment_count,
                         like: item.statistics.digg_count,
                         share: item.statistics.share_count,
@@ -425,8 +436,7 @@ var g_douyin = {
                 d.lastUpdateTime = new Date().getTime();
                 $.AMUI.progress.set(++i / ids.length);
                 if (i == ids.length) {
-                    this.save();
-                    $.AMUI.progress.done();
+                    done();
                 }
                 this.update(id)
             });

@@ -48,7 +48,7 @@ const g_video = {
                     h += `
                     <li data-vid="${vid}" data-uid="${uid}" class="slider_video_item h-full position-relative">
                         <span>${d.desc}</span>
-                        <video onmousewheel="g_video.event_wheel(event)"  class="w-full h-full" data-src="${d.video || ''}" poster="${d.cover}" autoplay loop>
+                        <video playsinline="" webkit-playsinline="" onmousewheel="g_video.event_wheel(event)"  class="w-full h-full" data-src="${d.video || ''}" poster="${d.cover}" autoplay loop>
                     </li>`;
                 }
 

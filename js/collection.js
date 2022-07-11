@@ -167,7 +167,7 @@ var g_coll = {
         }
         //  onclick="if(this.paused){this.play()}else{this.pause()}" 
         $('#detail_content').html(`
-            	<video style="height: calc(100vh - 100px);" class="w-full" src="${d.video || ''}" poster="${d.cover}" autoplay loop controls>
+            	<video playsinline="" webkit-playsinline="" style="height: calc(100vh - 100px);" class="w-full" src="${d.video || ''}" poster="${d.cover}" autoplay loop controls>
         		</video>
         		<div class="text-center d-block">
 	        		<button data-action="coll_video_prev" type="button" class="am-btn am-btn-primary"><i class="am-header-icon am-icon-arrow-left"></i></button>
