@@ -390,6 +390,7 @@ var g_douyin = {
             this.save();
             $.AMUI.progress.done();
             clearTimeout(timer);
+            alert('更新完毕');
         }
 
         let timer = setTimeout(() => done(), 1000 * 30);
@@ -398,7 +399,7 @@ var g_douyin = {
             let d = this.get(id);
             if (!d) return;
 
-            let u = url => url.split('_').at(-1);
+            let u = url => typeof(url) == 'string' && url.split('_').at(-1);
             if (!detail.aweme_list.length) return;
             for (let item of detail.aweme_list) {
                 let vid = item.aweme_id;
@@ -465,7 +466,7 @@ var g_douyin = {
 
         for (let id of ids) {
             this.douyin_fetchVideos(id, data => {
-                parseItem(data);
+                parseItem(id, data);
                 $.AMUI.progress.set(++i / ids.length);
                 if (i == ids.length) {
                     done();

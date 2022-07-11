@@ -9,6 +9,13 @@ var g_config = local_readJson('config', {
     }
 });
 
+if(!Array.prototype.at){
+    Array.prototype.at = function(index) {
+        if(index < 0) index = this.length - Math.abs(index);
+        return this.length <=index? "": this[index];
+    }
+}
+
 var g_cache = {
     toast: -1,
     lastWheel: 0,
@@ -28,6 +35,14 @@ function parseFile(input) {
             alert('错误的json数据!');
         }
     }
+}
+
+function downloadURL(url, filename){
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
 }
 
 

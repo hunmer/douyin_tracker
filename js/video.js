@@ -19,6 +19,9 @@ const g_video = {
         });
 
         registerAction('video_download', () => {
+            if(g_cache.isWeb){
+                return window.open(g_cache.preview.video.video, '_blank');
+            }
             ipc_send('download', {
                 url: g_cache.preview.video.video,
                 path: 'sdcard/download/' + '[' + g_cache.preview.vid + ']' + g_cache.preview.video.desc + '.mp4',
