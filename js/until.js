@@ -1,6 +1,7 @@
 var g_actions = {};
 var g_localKey = 'dy_';
 var g_api = 'https://neysummer-api.glitch.me/';
+// var g_api = 'http://127.0.0.1/douyin_tracker/dist/php/';
 var g_config = local_readJson('config', {
     user: {
         user: '',

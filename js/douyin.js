@@ -384,61 +384,92 @@ var g_douyin = {
         toast('更新中...', 'primary');
         if (ids === undefined) ids = Object.keys(this.list);
         if (!Array.isArray(ids)) ids = [ids];
+
         let i = 0;
         let done = () => {
             this.save();
             $.AMUI.progress.done();
             clearTimeout(timer);
         }
+
         let timer = setTimeout(() => done(), 1000 * 30);
-        for (let id of ids) {
+
+        const parseItem = (id, detail) => {
             let d = this.get(id);
-            if (!d) continue;
+            if (!d) return;
 
-            this.douyin_fetchVideos(id, data => {
-                let u = url => url.split('_').at(-1);
-                if (!data.aweme_list.length) return;
-                for (let item of data.aweme_list) {
-                    let vid = item.aweme_id;
-                    // todo 更新播放地址
+            let u = url => url.split('_').at(-1);
+            if (!detail.aweme_list.length) return;
+            for (let item of detail.aweme_list) {
+                let vid = item.aweme_id;
 
-                    let obj;
-                    if (Number(vid) > Number(d.lastVideo)) { // 没看过
-                        // 没有发布时间数据，但id是递增的
-                    } else
-                    if (d.list[vid]) { // 更新数据
-                        if (d.list[vid].last) { // 已经看过，直接删除
-                            delete d.list[vid];
-                            continue;
-                        }
-                    } else {
-                        // 不是最新的且没看过 -> 直接跳过
-                        continue;
+                let obj;
+                if (Number(vid) > Number(d.lastVideo)) { // 没看过
+                    // 没有发布时间数据，但id是递增的
+                } else
+                if (d.list[vid]) { // 更新数据
+                    if (d.list[vid].last) { // 已经看过，直接删除
+                        delete d.list[vid];
+                        return;
                     }
-                    let time = [u(item.video.cover.uri), u(item.video.dynamic_cover.uri),u(item.video.origin_cover.uri)].find(t => {
-                        return !isNaN(parseInt(t));
-                    })
-                    d.list[vid] = {
-                        time: parseInt(time + '000'),
-                        comment: item.statistics.comment_count,
-                        like: item.statistics.digg_count,
-                        share: item.statistics.share_count,
-                        desc: item.desc,
-                        vid: item.video.vid,
-                        duration: item.video.duration,
-                        cover: item.video.cover.url_list[0],
-                        video: item.video.play_addr.url_list[2], // 第3,4链接不会过期
-                        // video: 'http://127.0.0.1:8002/api/video?id=' + id,
-                    }
+                } else {
+                    // 不是最新的且没看过 -> 直接跳过
+                    return;
                 }
+                let time = [u(item.video.cover.uri), u(item.video.dynamic_cover.uri), u(item.video.origin_cover.uri)].find(t => {
+                    return !isNaN(parseInt(t));
+                })
+                d.list[vid] = {
+                    time: parseInt(time + '000'),
+                    comment: item.statistics.comment_count,
+                    like: item.statistics.digg_count,
+                    share: item.statistics.share_count,
+                    desc: item.desc,
+                    vid: item.video.vid,
+                    duration: item.video.duration,
+                    cover: item.video.cover.url_list[0],
+                    video: item.video.play_addr.url_list[2], // 第3,4链接不会过期
+                    // video: 'http://127.0.0.1:8002/api/video?id=' + id,
+                }
+            }
 
-                d.lastVideo = data.aweme_list[0].aweme_id; // 最新ID
-                d.lastUpdateTime = new Date().getTime();
+            d.lastVideo = detail.aweme_list[0].aweme_id; // 最新ID
+            d.lastUpdateTime = new Date().getTime();
+
+            this.update(id)
+        }
+
+        if (g_cache.isWeb) {
+            let send = {}
+            for (let id of ids) send[id] = this.list[id].lastVideo;
+
+            // 一次性发送解析
+            $.ajax({
+                    url: g_api + 'batch.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { list: send },
+                })
+                .done(function(ret) {
+                    for (let uid in ret) {
+                        parseItem(uid, ret[uid]);
+                    }
+                    done();
+                })
+                .fail(function() {
+                    toast('更新失败', 'danger');
+                })
+            return;
+        }
+
+
+        for (let id of ids) {
+            this.douyin_fetchVideos(id, data => {
+                parseItem(data);
                 $.AMUI.progress.set(++i / ids.length);
                 if (i == ids.length) {
                     done();
                 }
-                this.update(id)
             });
         }
     },
