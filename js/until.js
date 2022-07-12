@@ -19,6 +19,7 @@ if(!Array.prototype.at){
 var g_cache = {
     toast: -1,
     lastWheel: 0,
+    homepage_videos: {},
     nextPage: 0,
     isWeb:  typeof($autojs) == 'undefined' && typeof(_api) == 'undefined'
 }

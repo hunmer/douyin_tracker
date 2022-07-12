@@ -57,7 +57,6 @@ $(function() {
     $('.am-tabs-bd').on('scroll', function(event) {
         let top = this.scrollTop;
         domSelector('toTop').toggleClass('hide', top == 0)
-
         if (top + this.offsetHeight + 50 >= this.scrollHeight) {
             let now = new Date().getTime();
             if (now >= g_cache.nextPage) {
@@ -88,6 +87,14 @@ function doAction(dom, action, event) {
             $('#upload').click();
             break;
     }
+}
+
+function getTabBtn(tab){
+    return $('a[href="[data-tab-panel-'+tab+']"]');
+}
+
+function toTab(tab){
+    getTabBtn(tab).click();
 }
 
 function data_getAll(){

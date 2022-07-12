@@ -71,7 +71,7 @@ var g_coll = {
                 }
             }).then(() => {
             	name = $('.am-modal-dialog .bg-primary b').html();
-            	if(action[1]){
+            	if(action.length > 1 && action[1] != ''){
             		// 显示目录视频
             		self.coll_load(name);
             		return;
@@ -122,25 +122,29 @@ var g_coll = {
                 }
             })
         })
-        const coll_playIndex = (offset, vid) => {
-            if (!vid) vid = g_cache.preview.vid;
-            let keys = this.keys;
-            let index = keys.indexOf(vid) + offset;
-            self.coll_play(keys[index]);
-            domSelector('coll_video_prev').toggleClass('am-disabled', index <= 0);
-            domSelector('coll_video_next').toggleClass('am-disabled', index >= keys.length - 1);
-        }
+
 
         registerAction('coll_video_prev', () => {
-            coll_playIndex(-1);
+            let prev = $('.active_playing').prev();
+            if(prev.length){
+                prev.click();
+            }
         });
 
         registerAction('coll_video_next', () => {
-            coll_playIndex(1);
+            let next = $('.active_playing').next();
+            if(next.length){
+                next.click();
+            }
         });
 
-        registerAction('coll_play', dom => {
-            coll_playIndex(0, dom.dataset.vid);
+        registerAction('coll_play', (dom, action) => {
+            $('.active_playing').removeClass('active_playing');
+            $(dom).addClass('active_playing');
+            self.coll_play(dom.dataset.vid, action[1] || '');
+
+            domSelector('coll_video_prev').toggleClass('am-disabled', !$('.active_playing').prev().length);
+            domSelector('coll_video_next').toggleClass('am-disabled', !$('.active_playing').next().length);
         });
 
         $('[data-tab-panel-coll]').html(`
@@ -149,22 +153,25 @@ var g_coll = {
             </div>
 			<hr data-am-widget="divider"class="am-divider am-divider-default" />
 			  <div class="am-g" id="coll_main"></div>
-
-
 		`)
     },
 
     coll_save: function(key, val) {
         this.set()
     },
-    coll_play: function(vid) {
+    coll_play: function(vid, type) {
         if (vid == undefined) return;
+
         let d = this.get(vid);
-        g_cache.preview = {
-            vid: vid,
-            uid: d.uid,
-            video: d
+        if(!d){
+            d = g_cache.homepage_videos[vid];
+            if(!d) return;
         }
+         g_cache.preview = {
+                vid: vid,
+                uid: d.uid,
+                video: d
+            }
         //  onclick="if(this.paused){this.play()}else{this.pause()}" 
         $('#detail_content').html(`
             	<video playsinline="" webkit-playsinline="" style="height: calc(100vh - 100px);" class="w-full" src="${d.video || ''}" poster="${d.cover}" autoplay loop controls>
@@ -176,8 +183,10 @@ var g_coll = {
 	        </div>
 	      `);
 
+        if(!isEmpty(type)) type = ','+type;
         g_ui.showTabs({
-            title: g_coll.getHTML('coll_list,select', d.folder)
+            target: 'detail',
+            title: g_coll.getHTML('coll_list'+type, d.folder)
         });
     },
 
@@ -189,8 +198,8 @@ var g_coll = {
             if (item.folder == name) {
                 ids.push(vid)
                 h += `
-		            <li data-vid="${vid}" class="coll_item position-relative" data-action="coll_play">
-		              <img style="max-height: 145px;width: 100%;" title="${item.desc}" class="am-thumbnail lazyload" src="${item.cover}"  />
+		            <li data-vid="${vid}" class="coll_item position-relative" data-action="coll_play,select">
+		              <img style="width: 100%;" title="${item.desc}" class="am-thumbnail lazyload" src="${item.cover}"  />
 		              <a class="text-ligth position-absolute" style="left: 20px;bottom:20px;"><i class="am-header-icon am-icon-heart mr-2"></i>${item.like}</a>
 		            </li>
 		          `

@@ -1,16 +1,11 @@
-const g_ui = {
+var g_ui = {
     init: function() {
         const self = this;
-        registerAction('user_showUpdate', dom => {
-
-            let user = dom.dataset.user;
-            $('#title-link').html(user);
-
-            self.showTabs(false);
-        });
 
         registerAction('ui_showTabs', dom => {
-            self.showTabs(true);
+            self.showTabs({
+                target: 'tabs'
+            });
         });
 
         registerAction('actions_users', () => {
@@ -19,16 +14,19 @@ const g_ui = {
 
         // self.showTabs(false);
     },
-    showTabs: function(show) {
-        if(typeof(show) == 'object'){
-            let opts = Object.assign({}, show);
-            show = false;
-            $('#detail').find('#title-link').html(opts.title)
+    showTabs: function(opts) {
+        for(let id of ['tabs', 'detail']){
+            let show = id == opts.target;
+            let target = $('#'+id);
 
+            target.toggleClass('hide', !show);
+            if(show && opts.title){
+                target.find('#title-link').html(opts.title)
+            }
         }
-        $('#tabs').toggleClass('hide', !show);
-        $('#detail').toggleClass('hide', show);
-        show && $('#detail_content').html('')
+        if(opts.target == 'tabs'){
+             $('#detail_content').html('');
+        }
     },
 }
 

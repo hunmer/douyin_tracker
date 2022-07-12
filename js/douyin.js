@@ -26,6 +26,11 @@ var g_douyin = {
             }
         });
 
+        registerAction('user_homepage', dom => {
+            let uid = $(dom).parents('[data-uid]').data('uid');
+            self.user_homepage(uid);
+        })
+
         registerAction(['data_upload', 'data_sync'], (dom, action) => {
             showModal({
                 type: 'prompt',
@@ -153,10 +158,10 @@ var g_douyin = {
             })
         })
 
-        registerAction(['user_update', 'user_homepage', 'user_makeReaded', 'user_delete'], (dom, action) => {
+        registerAction(['user_update', 'user_web', 'user_makeReaded', 'user_delete'], (dom, action) => {
             let uid = g_menu.key;
             switch (action[0]) {
-                case 'user_homepage':
+                case 'user_web':
                     ipc_send('url', `https://www.douyin.com/user/` + uid)
                     break;
                 case 'user_update':
@@ -237,6 +242,117 @@ var g_douyin = {
             // }
         });
         this.update();
+
+        // this.user_homepage('MS4wLjABAAAAs-MlRqxff9efYytMFV4tJd1gIa5WDQHAAo2LWaAMPwQ')
+    },
+
+    user_homepage: function(uid) {
+        g_douyin.douyin_fetchUser(uid, d => {
+            let exists = g_douyin.list[uid];
+            $('#homepage').html(`
+             <div class="am-g mt-10 text-center">
+                <div class="am-u-sm-3 ">
+                    <img class="am-circle mx-auto " title="${d.name}" src="${d.icon}" width="60" height="60"/>
+                </div>
+                <div class="am-u-sm-3">获赞<br>${numToStr(d.like)}</p></div>
+                <div class="am-u-sm-3">关注<br>${numToStr(d.following)}</div>
+                <div class="am-u-sm-3">粉丝<br>${numToStr(d.followers)}</div>
+            </div>
+
+             <b class="ml-2">${d.name}</b>
+             <hr>
+             <div>${d.desc.replaceAll('\n', '<br>')}</div>
+             <div class="am-btn-group w-full mt-10">
+              <button class="am-btn ${exists ? '' : 'am-btn-danger'}" style="width: 80%;">${exists ? '取消关注' : '关注'}</button>
+              <div class="am-dropdown" data-am-dropdown>
+                <button class="am-btn am-dropdown-toggle" data-am-dropdown-toggle> <span class="am-icon-caret-down"></span></button>
+                <ul class="am-dropdown-content">
+                  <li class="am-dropdown-header">更多选项</li>
+                  <li><a href="#">打开主页</a></li>
+                  <li class="am-divider"></li>
+                  <li><a href="#">删除账号</a></li>
+                </ul>
+              </div>
+            </div>
+             <hr>
+              <div class="am-form-group mt-10">
+                  <span class="am-badge am-badge-danger mr-2">${d.videos}个作品</span>
+                  <label class="am-checkbox-inline">
+                    <input type="checkbox" value="option1"> 已观看
+                  </label>
+                  <label class="am-checkbox-inline">
+                    <input type="checkbox" value="option2"> 热门
+                  </label>
+              </div>
+
+              <div id="homepage_videos" class="am-g">
+              <ul class="am-avg-sm-2 am-avg-md-4 am-avg-lg-6 am-thumbnails">
+            </ul>
+              </div>
+        `).find('.am-dropdown')
+                .dropdown();
+
+            toTab('user');
+            setTimeout(() => $('#homepage').animate({ scrollTop: 0 }, 500), 200);
+
+            g_cache.homepage = {
+                id: uid,
+                cursor: 0,
+                count: 20,
+                last: 0,
+            }
+
+            let nextPage = () => {
+                this.user_loadVideos(g_cache.homepage);
+            }
+            $('#homepage')[0].onscroll = function(e) {
+                let top = this.scrollTop;
+                if (top + this.offsetHeight + 50 >= this.scrollHeight) {
+                    let now = new Date().getTime();
+                    if (now >= g_cache.homepage.last) {
+                        g_cache.homepage.last = now + 500;
+                        nextPage();
+                    }
+                }
+            }
+
+            nextPage();
+
+        })
+    },
+
+    video_getTime: function(item) {
+        let u = url => typeof(url) == 'string' && url.split('_').at(-1);
+        return parseInt([u(item.video.cover.uri), u(item.video.dynamic_cover.uri), u(item.video.origin_cover.uri)].find(t => {
+            return !isNaN(parseInt(t));
+        }) + '000')
+    },
+
+    user_loadVideos: function(opts) {
+        let h = '';
+        this.douyin_fetchVideos(opts, data => {
+            let cursor = 999999999999999;
+            for (let item of data.aweme_list) {
+                let vid = item.aweme_id;
+                let time = this.video_getTime(item);
+                cursor = Math.min(time, cursor);
+
+                let detail = g_douyin.getVideoDetail(item);
+                g_cache.homepage_videos[vid] = detail
+                h += `
+                      <li data-vid="${vid}" class="position-relative" data-action="coll_play">
+                      <span class="am-badge am-badge-primary position-absolute" style="top:0;left:5px;">${time_getRent(time)}</span>
+                      <img style="width: 100%;" title="${detail.desc}" class="am-thumbnail lazyload" src="${detail.cover}"  />
+                      <span class="text-danger am-badge am-round  position-absolute" style="left: 20px;bottom:20px;"><i class="am-header-icon am-icon-heart mr-2"></i>${numToStr(detail.like)}</span>
+                    </li>
+                `
+                // item.video.play_addr.url_list[2]
+            }
+            g_cache.homepage.cursor = cursor;
+            $('#homepage_videos ul').append(h).find('.lazyload').lazyload();
+
+        });
+
     },
 
     link_parse: function(url) {
@@ -259,7 +375,7 @@ var g_douyin = {
             let e = exists.includes(id);
             h += `
               <li data-uid="${id}">
-                 <img onclick="window.open('https://www.douyin.com/user/${id}', 'target')" class="am-circle mx-auto mr-2" title="${d.user.name}" src="${d.user.icon}" width="40" height="40"/>
+                 <img data-action="user_homepage" class="am-circle mx-auto mr-2" title="${d.user.name}" src="${d.user.icon}" width="40" height="40"/>
                     <b>${d.user.name}</b>
 
                 <div class="float-end">
@@ -338,7 +454,7 @@ var g_douyin = {
             if (i > 0) {
                 let h = $(`
                  <div class="user_recent am-u-sm-12 " data-uid="${id}">
-                     <img class="am-circle mx-auto mr-2" title="${d.user.name}" src="${d.user.icon}" width="40" height="40"/>
+                     <img data-action="user_homepage" class="am-circle mx-auto mr-2" title="${d.user.name}" src="${d.user.icon}" width="40" height="40"/>
                     <b>${d.user.name}</b>
                     <span class="am-badge am-badge-danger me-2">${i}</span>
                     <div class="float-end">
@@ -380,6 +496,21 @@ var g_douyin = {
 
     },
 
+    getVideoDetail: function(item) {
+        return {
+            time: this.video_getTime(item),
+            comment: item.statistics.comment_count,
+            like: item.statistics.digg_count,
+            share: item.statistics.share_count,
+            desc: item.desc,
+            vid: item.video.vid,
+            duration: item.video.duration,
+            cover: item.video.cover.url_list[0],
+            video: item.video.play_addr.url_list[2], // 第3,4链接不会过期
+            // video: 'http://127.0.0.1:8002/api/video?id=' + id,
+        }
+    },
+
     account_checkNew: function(ids) {
         toast('更新中...', 'primary');
         if (ids === undefined) ids = Object.keys(this.list);
@@ -397,9 +528,8 @@ var g_douyin = {
 
         const parseItem = (id, detail) => {
             let d = this.get(id);
-            if (!d) return;
+            if (!d || !detail) return;
 
-            let u = url => typeof(url) == 'string' && url.split('_').at(-1);
             if (!detail.aweme_list.length) return;
             for (let item of detail.aweme_list) {
                 let vid = item.aweme_id;
@@ -417,21 +547,7 @@ var g_douyin = {
                     // 不是最新的且没看过 -> 直接跳过
                     return;
                 }
-                let time = [u(item.video.cover.uri), u(item.video.dynamic_cover.uri), u(item.video.origin_cover.uri)].find(t => {
-                    return !isNaN(parseInt(t));
-                })
-                d.list[vid] = {
-                    time: parseInt(time + '000'),
-                    comment: item.statistics.comment_count,
-                    like: item.statistics.digg_count,
-                    share: item.statistics.share_count,
-                    desc: item.desc,
-                    vid: item.video.vid,
-                    duration: item.video.duration,
-                    cover: item.video.cover.url_list[0],
-                    video: item.video.play_addr.url_list[2], // 第3,4链接不会过期
-                    // video: 'http://127.0.0.1:8002/api/video?id=' + id,
-                }
+                d.list[vid] = g_douyin.getVideoDetail(item)
             }
 
             d.lastVideo = detail.aweme_list[0].aweme_id; // 最新ID
@@ -487,8 +603,13 @@ var g_douyin = {
     },
 
     // 用户所有视频
-    douyin_fetchVideos: function(id, callback) {
-        fetch(getURL(`https://www.iesdouyin.com/web/api/v2/aweme/post/?sec_uid=${id}&count=10&max_cursor=0&aid=1128&_signature=HunHKQABfpAtN81GL5ujHx7pvd` + id)).then(d => {
+    douyin_fetchVideos: function(opts, callback) {
+        if (typeof(opts) != 'object') opts = { id: opts };
+        opts = Object.assign({
+            count: 10,
+            cursor: 0
+        }, opts)
+        fetch(getURL(`https://www.iesdouyin.com/web/api/v2/aweme/post/?sec_uid=${opts.id}&count=${opts.count}&max_cursor=${opts.cursor}&min_cursor=0&aid=1128&_signature=HunHKQABfpAtN81GL5ujHx7pvd`)).then(d => {
             d.json().then(function(data) {
                 callback(data);
             })

@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 const files = require('./file.js')
 app.commandLine.appendSwitch("disable-http-cache");
-
+app.setPath('userData', process.cwd()+'/cache');
 var win;
 Menu.setApplicationMenu(null)
 
