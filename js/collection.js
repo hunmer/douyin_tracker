@@ -7,9 +7,9 @@ var g_coll = {
             selector: '.coll_item',
             dataKey: 'data-vid',
             html: g_menu.buildItems([{
-                action: 'coll_item_finish',
+                action: 'coll_item_homepage',
                 class: 'text-success',
-                text: '已完成',
+                text: '主页',
                 icon: 'check-circle-o'
             }, {
                 action: 'coll_item_delete',
@@ -50,12 +50,12 @@ var g_coll = {
             var h = '';
             for (let name in ret) {
                 h += `
-		        <li data-action="toggleClass,bg-primary" class="${ g_cache.preview && name == g_cache.preview.video.folder ? 'am-active' : ''}">
-				    <span class="am-badge am-badge-success">
-				    ${ret[name].length}</span>
-				    <b>${name}</b>
-				</li>
-				 `
+                <li data-action="toggleClass,bg-primary" class="${ g_cache.preview && name == g_cache.preview.video.folder ? 'am-active' : ''}">
+                    <span class="am-badge am-badge-success">
+                    ${ret[name].length}</span>
+                    <b>${name}</b>
+                </li>
+                 `
             }
 
             showModal({
@@ -70,21 +70,22 @@ var g_coll = {
                     return btns;
                 }
             }).then(() => {
-            	name = $('.am-modal-dialog .bg-primary b').html();
-            	if(action.length > 1 && action[1] != ''){
-            		// 显示目录视频
-            		self.coll_load(name);
-            		return;
-            	}
-            	// 保存视频目录属性
+                name = $('.am-modal-dialog .bg-primary b').html();
+                if (action[1]) {
+                    // 显示目录视频
+                    self.coll_load(name);
+                    return;
+                }
+                // 保存视频目录属性
                 coll_saveTo(name);
             })
 
         });
 
-        registerAction(['coll_item_finish', 'coll_item_delete'], (dom, action) => {
+        registerAction(['coll_item_homepage', 'coll_item_delete'], (dom, action) => {
             switch (action[0]) {
-                case 'coll_item_finish':
+                case 'coll_item_homepage':
+                    ipc_send('url', `https://www.douyin.com/video/` + g_menu.key);
                     break;
 
                 case 'coll_item_delete':
@@ -123,17 +124,70 @@ var g_coll = {
             })
         })
 
+         registerAction('coll_menu', dom => {
+            g_menu.showMenu('coll_menu', $(dom).parents('[data-uid]'))
+        });
+
+         g_menu.registerMenu({
+            name: 'coll_menu',
+            selector: '__',
+            dataKey: '',
+            html: g_menu.buildItems([{
+                action: 'coll_update',
+                class: 'text-success',
+                text: '更新数据',
+                icon: 'refresh'
+            }, {
+                action: 'coll_selectMode',
+                class: 'text-success',
+                text: '选择模式',
+                icon: 'tag'
+            }]),
+            onShow: key => {
+
+            }
+        });
+
+         registerAction(['coll_update'], (dom, action) => {
+            let name =  domSelector('coll_list,select').text();
+            if(name == '默认专辑') return;
+            switch(action[0]){
+                case 'coll_update':
+                    let i = 0;
+                    let ids = this.coll_items(name);
+                    for(let id of ids){
+                        g_douyin.douyin_fetchID(id, data => {
+                            let item = data.item_list[0];
+                            if(item){
+                                let detail = g_douyin.getVideoDetail(item);
+                                delete detail.video; // 不更新视频链接
+                                Object.assign(g_coll.list[id], detail);
+                            }
+
+                            if(++i == ids.length){
+                                toast('更新完成', 'success');
+                                g_coll.coll_load(name);
+                                g_coll.save();
+                            }
+                        });
+
+                    }
+                    break;
+            }
+            g_menu.hideMenu('coll_menu');
+         })
+
 
         registerAction('coll_video_prev', () => {
             let prev = $('.active_playing').prev();
-            if(prev.length){
+            if (prev.length) {
                 prev.click();
             }
         });
 
         registerAction('coll_video_next', () => {
             let next = $('.active_playing').next();
-            if(next.length){
+            if (next.length) {
                 next.click();
             }
         });
@@ -148,12 +202,16 @@ var g_coll = {
         });
 
         $('[data-tab-panel-coll]').html(`
-            <div class="text-center w-full">
-			 ${this.getHTML('coll_list,select')}
+            <div class="w-full">
+             ${this.getHTML('coll_list,select')}
+
+            <div class="float-end">
+                <button class="am-btn" data-action="coll_menu"><span class="am-icon-caret-down"></span></button>
             </div>
-			<hr data-am-widget="divider"class="am-divider am-divider-default" />
-			  <div class="am-g" id="coll_main"></div>
-		`)
+            </div>
+            <hr data-am-widget="divider"class="am-divider am-divider-default" />
+              <div class="am-g" id="coll_main"></div>
+        `)
     },
 
     coll_save: function(key, val) {
@@ -163,56 +221,59 @@ var g_coll = {
         if (vid == undefined) return;
 
         let d = this.get(vid);
-        if(!d){
+        if (!d) {
             d = g_cache.homepage_videos[vid];
-            if(!d) return;
+            if (!d) return;
         }
-         g_cache.preview = {
-                vid: vid,
-                uid: d.uid,
-                video: d
-            }
+        g_cache.preview = {
+            vid: vid,
+            uid: d.uid,
+            video: d
+        }
         //  onclick="if(this.paused){this.play()}else{this.pause()}" 
         $('#detail_content').html(`
-            	<video playsinline="" webkit-playsinline="" style="height: calc(100vh - 100px);" class="w-full" src="${d.video || ''}" poster="${d.cover}" autoplay loop controls>
-        		</video>
-        		<div class="text-center d-block">
-	        		<button data-action="coll_video_prev" type="button" class="am-btn am-btn-primary"><i class="am-header-icon am-icon-arrow-left"></i></button>
-	        		<button data-action="coll_video_next" type="button" class="am-btn am-btn-primary"><i class="am-header-icon am-icon-arrow-right"></i></button>
-	        	</div>
-	        </div>
-	      `);
+                <video playsinline="" webkit-playsinline="" style="height: calc(100vh - 100px);" class="w-full" src="${d.video || ''}" poster="${d.cover}" autoplay loop controls>
+                </video>
+                <div class="text-center d-block">
+                    <button data-action="coll_video_prev" type="button" class="am-btn am-btn-primary"><i class="am-header-icon am-icon-arrow-left"></i></button>
+                    <button data-action="coll_video_next" type="button" class="am-btn am-btn-primary"><i class="am-header-icon am-icon-arrow-right"></i></button>
+                </div>
+            </div>
+          `);
 
-        if(!isEmpty(type)) type = ','+type;
+        if (!isEmpty(type)) type = ',' + type;
         g_ui.showTabs({
             target: 'detail',
-            title: g_coll.getHTML('coll_list'+type, d.folder)
+            title: g_coll.getHTML('coll_list' + type, d.folder)
         });
     },
 
     coll_load: function(name) {
         domSelector('coll_list,select').html(name);
         let h = ``;
-        let ids = [];
-        for (let [vid, item] of Object.entries(this.list)) {
-            if (item.folder == name) {
-                ids.push(vid)
-                h += `
-		            <li data-vid="${vid}" class="coll_item position-relative" data-action="coll_play,select">
-		              <img style="width: 100%;" title="${item.desc}" class="am-thumbnail lazyload" src="${item.cover}"  />
-		              <a class="text-ligth position-absolute" style="left: 20px;bottom:20px;"><i class="am-header-icon am-icon-heart mr-2"></i>${item.like}</a>
-		            </li>
-		          `
-            }
+        this.keys = this.coll_items(name);
+        for(let vid of this.keys){
+            let item = this.list[vid];
+              h += `
+                    <li data-vid="${vid}" class="coll_item position-relative" data-action="coll_play">
+                      <img style="width: 100%;" title="${item.desc}" class="am-thumbnail lazyload" src="${item.cover}"  />
+                      <span class="text-danger am-badge am-round  position-absolute" style="left: 20px;bottom:20px;"><i class="am-header-icon am-icon-heart mr-2"></i>${numToStr(item.like)}</span>
+                    </li>
+                  `
         }
-        this.keys = ids;
         $('#coll_main').html(h ? `<ul class="am-avg-sm-3 am-thumbnails">${h}</ul>` : '<h4 class="text-center">空空的...</h4>')
             .find('.lazyload').lazyload();
     },
 
-    get_folder: function(key){
-    	let d = this.get(key);
-    	return d && d.folder ? d.folder : '选择专辑';
+    coll_items: function(name){
+         return Object.keys(this.list).filter(key => {
+            return this.list[key].folder == name;
+         })
+    },
+
+    get_folder: function(key) {
+        let d = this.get(key);
+        return d && d.folder ? d.folder : '选择专辑';
     },
 
     set: function(key, vals) {

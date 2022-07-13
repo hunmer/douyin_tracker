@@ -247,6 +247,7 @@ var g_douyin = {
     },
 
     user_homepage: function(uid) {
+        toast('正在获取用户信息', 'primary');
         g_douyin.douyin_fetchUser(uid, d => {
             let exists = g_douyin.list[uid];
             $('#homepage').html(`
@@ -531,8 +532,11 @@ var g_douyin = {
             if (!d || !detail) return;
 
             if (!detail.aweme_list.length) return;
+
+            let newst = 0;
             for (let item of detail.aweme_list) {
                 let vid = item.aweme_id;
+                newst = Math.max(vid, newst);
 
                 let obj;
                 if (Number(vid) > Number(d.lastVideo)) { // 没看过
@@ -541,18 +545,18 @@ var g_douyin = {
                 if (d.list[vid]) { // 更新数据
                     if (d.list[vid].last) { // 已经看过，直接删除
                         delete d.list[vid];
-                        return;
+                        continue;
                     }
+
                 } else {
                     // 不是最新的且没看过 -> 直接跳过
-                    return;
+                    continue;
                 }
                 d.list[vid] = g_douyin.getVideoDetail(item)
             }
 
-            d.lastVideo = detail.aweme_list[0].aweme_id; // 最新ID
+            d.lastVideo = newst; // 最新ID
             d.lastUpdateTime = new Date().getTime();
-
             this.update(id)
         }
 
@@ -609,11 +613,16 @@ var g_douyin = {
             count: 10,
             cursor: 0
         }, opts)
-        fetch(getURL(`https://www.iesdouyin.com/web/api/v2/aweme/post/?sec_uid=${opts.id}&count=${opts.count}&max_cursor=${opts.cursor}&min_cursor=0&aid=1128&_signature=HunHKQABfpAtN81GL5ujHx7pvd`)).then(d => {
-            d.json().then(function(data) {
-                callback(data);
+        try{
+             fetch(getURL(`https://www.iesdouyin.com/web/api/v2/aweme/post/?sec_uid=${opts.id}&count=${opts.count}&max_cursor=${opts.cursor}&min_cursor=0&aid=1128&_signature=HunHKQABfpAtN81GL5ujHx7pvd`)).then(d => {
+                d.json().then(function(data) {
+                    callback(data);
+                })
             })
-        })
+        } catch(e){
+            callback({aweme_list: []});
+        }
+       
     },
 
     douyin_fetchUser: function(id, callback) {

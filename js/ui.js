@@ -3,6 +3,9 @@ var g_ui = {
         const self = this;
 
         registerAction('ui_showTabs', dom => {
+            // 返回时重载列表（如果有的已经换了分组）
+            let coll = domSelector('coll_list,select').text();
+            if(coll != '默认专辑') g_coll.coll_load(coll);
             self.showTabs({
                 target: 'tabs'
             });

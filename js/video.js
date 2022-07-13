@@ -1,3 +1,4 @@
+
 const g_video = {
     video_get: function(vid) {
         return this.data[vid]
@@ -35,8 +36,8 @@ const g_video = {
                 v.src = '';
                 v.remove();
             }
-            dom = $(dom)
 
+            dom = $(dom)
             let h = ``;
             let par = dom.parents('.video_item');
             let vid = par.data('vid');
@@ -126,6 +127,7 @@ const g_video = {
             });
             setTimeout(() => $('#slider_videos').flexslider(start), 100);
             g_ui.showTabs({
+                target: 'detail',
                 title: g_coll.getHTML()
             });
         })
